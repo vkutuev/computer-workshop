@@ -1,6 +1,6 @@
 name: ROOT
 version: ~
-title: Основы программирования
+title: Практикум на ЭВМ
 nav:
   - modules/ROOT/nav.adoc
   - modules/01-lab-git/nav.adoc
