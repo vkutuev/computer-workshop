@@ -1,0 +1,26 @@
+site:
+  title: Практикум на ЭВМ
+  url: https://vkutuev.github.io/computer-workshop
+content:
+  sources:
+    - url: ./.
+ui:
+  bundle:
+    url: https://gitlab.com/antora/antora-ui-default/-/jobs/artifacts/HEAD/raw/build/ui-bundle.zip?job=bundle-stable
+    snapshot: true
+  supplemental_files: ./supplemental-ui
+antora:
+  extensions:
+    - require: "@antora/lunr-extension"
+      languages: [en, ru]
+asciidoc:
+  extensions:
+    - asciidoctor-mathjax
+  attributes:
+    figure-caption: "Рисунок"
+    important-caption: "Важно"
+    caution-caption: "Внимание"
+    note-caption: "Примечание"
+    tip-caption: "Совет"
+    warning-caption: "Опасность"
+    stem: latexmath
