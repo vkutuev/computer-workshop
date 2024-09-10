@@ -178,7 +178,7 @@ git add _config.yml
 
 [source, shell]
 ----
-git commit -m 'Add base jekyll configuration'
+git commit -m 'Add jekyll theme'
 ----
 
 == Посмотрите, что история изменений нелинейна
