@@ -50,7 +50,7 @@ int my_sum(int first, int second)
 
 void display_abs(int input_val)
 {
-    if (input_val < 0) {
+    if (input_value < 0) {
         int tmp_value;
         tmp_value = -input_value;
         printf("displaying %d\n", tmp_value);
@@ -91,7 +91,7 @@ int display_test(void)
 [source,c]
 ----
 for (int i = 0; i < 3; i += 1) {
-    do_something
+    do_something();
 }
 ----
 
@@ -251,10 +251,11 @@ int main() {
     struct xy_point another_point_2d = {4, -3};
     struct xyz_point point_3d;
 
-    point_3d.xy = point_one;
+    point_3d.xy = point_2d;
     point_3d.z = 8;
 
-    printf("\n", point_3d.xy.x, point_3d.xy.y, point_3d.z);
+    printf("%d, %d, %d\n", point_3d.xy.x, point_3d.xy.y, point_3d.z);
+    return 0;
 }
 ----
 
@@ -277,7 +278,7 @@ int val = 34;
 int* pointer_to_val = &val;
 int val_from_pointer = *pointer_to_val;
 
-printf("val %d, ponter_to_val %p, val_from_ponter %d\n",
+printf("val %d, pointer_to_val %p, val_from_pointer %d\n",
        val, pointer_to_val, val_from_pointer);
 ----
 
@@ -300,12 +301,12 @@ image::pointer.png[]
 
 [source,c]
 ----
-void value_incrementer(int in_value)
+void increment_value(int in_value)
 {
     in_value += 1;
 }
 
-void pointer_incrementer(int *in_value)
+void increment_pointer(int *in_value)
 {
     *in_value += 1;
 }
@@ -314,10 +315,10 @@ int main() {
     int val = 34;
     int *pointer_to_val = &val;
 
-    value_incrementer(val);
+    increment_value(val);
     printf("val %d\n", val);
 
-    pointer_incrementer(pointer_to_val);
+    increment_pointer(pointer_to_val);
     printf("val %d\n", val);
 
     return 0;
@@ -332,12 +333,12 @@ int main() {
 
 [source, c]
 ----
-void point_initializer(struct xy_point *p) {
+void point_initialize(struct xy_point *p) {
     p->x = 0;
     p->y = 0;
 }
 
-void point_printer(struct xy_point *p) {
+void point_print(struct xy_point *p) {
     printf("`(%d, %d)`", p->x, p->y);
 }
 ----
@@ -380,7 +381,7 @@ printf("%d\n", *ptr);
 
 [source,c]
 ----
-struct xy_point *create_point_faulty(void)
+struct xy_point *point_create_faulty(void)
 {
     struct xy_point p;
 
@@ -400,7 +401,7 @@ struct xy_point *create_point_faulty(void)
 ----
 #include <stdlib.h>
 
-struct xy_point *create_point_better(void)
+struct xy_point *point_create_better(void)
 {
     struct xy_point *p;
 
@@ -431,7 +432,7 @@ struct xy_point *create_point_better(void)
 
 [source,c]
 ----
-struct xy_point *create_point_correct(void) {
+struct xy_point *point_create_correct(void) {
     struct xy_point *p = NULL;
 
     p = malloc(sizeof(*p));
@@ -445,7 +446,7 @@ struct xy_point *create_point_correct(void) {
 }
 
 void main() {
-    struct xy_point *p = create_point_correct();
+    struct xy_point *p = point_create_correct();
 
     some_action_with_point(p);
     free(p);
