@@ -5,3 +5,42 @@
 Исходный код примеров находится под лицензией link:./LICENSE.MIT[MIT].
 
 Тексты -- под лицензий link:./LICENSE.CC-BY-SA-4.0[CC-BY-SA-4.0].
+
+== Сборка текстов
+
+[NOTE]
+====
+Инструкция по сборке взята из https://github.com/Lamagraph/intro-to-fpga-with-clash[курса по FPGA и Clash], сделанного авторами проекта https://github.com/Lamagraph[Lamagraph]
+====
+
+
+Для сборки текстов используется https://antora.org/[Antora].
+Для неё требуется установить в систему NodeJS и NPM.
+
+Для Arch Linux это можно сделать так:
+[,console]
+----
+$ sudo pacman -S nodejs npm
+----
+
+Далее необходимо установить зависимости https://antora.org/[Antora].
+Для этого из корня репозитория необходимо выполнить:
+[,console]
+----
+$ npm install
+----
+
+https://antora.org/[Antora] использует достаточно специфическую раскладку по директориям, с котором можно ознакомиться https://docs.antora.org/antora/latest/standard-directories/[здесь].
+
+Из корневой папки сайт можно сгенерировать командой:
+[,console]
+----
+$ npx antora ./antora-playbook.yml --fetch
+----
+После первой сборки добавлять флаг `--fetch` необязательно.
+
+Для того, чтобы открыть сайт можно выполнить:
+[,console]
+----
+$ npx http-server build/site -c-1
+----
