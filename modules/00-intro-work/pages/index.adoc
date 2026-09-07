@@ -428,11 +428,11 @@ b = 2000000000
 
 Сделать это можно, вычитая `b` из `a` пока `a >= b`.
 
-Код на C будет выглядеть примерно так.
+Код на C будет выглядеть примерно так (про `static` перед функцией поговорим чуть позже).
 
 [source,c]
 ----
-int div_nat(int a, int b) {
+static int div_nat(int a, int b) {
 	int res = 0;
 
 	// На C цикл можно было бы написать так
@@ -661,7 +661,7 @@ int main(void) {
 ----
 #include <stdio.h>
 
-int div_nat(int, int); // <2>
+static int div_nat(int, int); // <2>
 
 int main() {
 	int a, b;
@@ -691,7 +691,7 @@ int main() {
 	return 0;
 }
 
-int div_nat(int a, int b) { // <3>
+static int div_nat(int a, int b) { // <3>
 	int res = 0;
 	while (a >= b) {
 		a -= b;
@@ -707,6 +707,8 @@ int div_nat(int a, int b) { // <3>
 <2> Объявление функции.
 Задаёт имя функции, тип возвращаемого значения и типы аргументов.
 Если в файле выше вызова функции нет её объявления, то компилятор сообщит об этом: попробуйте удалить эту строчку в программе и скомпилировать, вы должны увидеть сообщение _implicit declaration of function_ (в новых версиях GCC это ошибка, в старых -- предупреждение; в стандартах C89/C90 такое поведение разрешалось).
+Обратите внимание на `static` перед объявлением: это значит, что функция видна только в пределах текущего файла -- в многофайловой программе её нельзя вызвать из другого файла по имени.
+Все функции в наших примерах используются только внутри своего файла, поэтому мы будем объявлять их `static`.
 <3> Определение функции.
 Содержит сигнатуру и тело функции (то есть описание того, что она делает).
 Определение функции автоматически является объявлением, поэтому если перенести определение функции `div_nat` выше `main` и удалить объявление, то всё будет работать успешно.
@@ -797,9 +799,9 @@ int div_nat(int a, int b) { // <3>
 
 #define MAX_ARRAY_SIZE 100 // <1>
 
-void reverse_array(int *arr, int start, int end) {
-	int size = end - start + 1;
-	for (int i = 0; i < size / 2; ++i) {
+static void reverse_array(int *arr, size_t start, size_t end) { // <6>, <7>
+	size_t size = end - start + 1;
+	for (size_t i = 0; i < size / 2; ++i) {
 		int temp = arr[start + i];
 		arr[start + i] = arr[end - i];
 		arr[end - i] = temp;
@@ -872,6 +874,10 @@ int main(int argc, char *argv[]) { // <2>
 Если быть более точным то для эмулятора терминала (вряд ли вы сидите за физическим терминалом), программы, которая ведёт себя как https://en.wikipedia.org/wiki/Computer_terminal[терминал].
 Такие последовательности не печатаются на экран, а используются для управления терминалом, например в данной строке есть 2 последовательности: `"\033[0;31m"` -- сделать цвет печатаемого текста красным, `"\033[0m"` -- сбросить настройки.
 Подобные последовательности позволяют не только менять цвет текста, но и многое другое.
+<6> Перед `reverse_array` стоит `static` -- мы уже встречали эту конструкцию у `div_nat`: функция видна только в пределах текущего файла.
+<7> `size_t` -- специальный беззнаковый целочисленный тип, который используют для значений, являющихся количеством элементов, размером или индексом.
+Он определён в заголовке `<stddef.h>` (подтягивается вместе с `<stdio.h>`), значения `size_t` печатают через спецификатор `%zu`.
+В некоторых местах счётчики циклов остаются `int` -- когда они ограничены переменными типа `int` (например, `m` и `n`, прочитанными из аргументов командной строки).
 
 ==== Другие решения
 
@@ -902,22 +908,22 @@ int main(int argc, char *argv[]) { // <2>
 ----
 #include <stdio.h>
 
-int simple() {
-	int res = 0;
-	for (int i1 = 0; i1 < 10; ++i1)
-	for (int i2 = 0; i2 < 10; ++i2)
-	for (int i3 = 0; i3 < 10; ++i3)
-	for (int i4 = 0; i4 < 10; ++i4)
-	for (int i5 = 0; i5 < 10; ++i5)
-	for (int i6 = 0; i6 < 10; ++i6)
+static size_t simple(void) {
+	size_t res = 0;
+	for (size_t i1 = 0; i1 < 10; ++i1)
+	for (size_t i2 = 0; i2 < 10; ++i2)
+	for (size_t i3 = 0; i3 < 10; ++i3)
+	for (size_t i4 = 0; i4 < 10; ++i4)
+	for (size_t i5 = 0; i5 < 10; ++i5)
+	for (size_t i6 = 0; i6 < 10; ++i6)
 		if (i1 + i2 + i3 == i4 + i5 + i6)
 			res++;
 	return res;
 }
 
 int main() {
-	int res = simple();
-	printf("%d\n", res);
+	size_t res = simple();
+	printf("%zu\n", res);
 	return 0;
 }
 ----
@@ -947,22 +953,22 @@ int main() {
 
 #define MAX_LEN 28
 
-int count_sums() {
-	int sums_count[MAX_LEN] = {0};
-	for (int i1 = 0; i1 < 10; ++i1)
-	for (int i2 = 0; i2 < 10; ++i2)
-	for (int i3 = 0; i3 < 10; ++i3)
+static size_t count_sums(void) {
+	size_t sums_count[MAX_LEN] = {0};
+	for (size_t i1 = 0; i1 < 10; ++i1)
+	for (size_t i2 = 0; i2 < 10; ++i2)
+	for (size_t i3 = 0; i3 < 10; ++i3)
 		sums_count[i1 + i2 + i3]++;
-	int res = 0;
-	for (int i = 0; i <= 27; ++i) {
+	size_t res = 0;
+	for (size_t i = 0; i <= 27; ++i) {
 		res += sums_count[i] * sums_count[i];
 	}
 	return res;
 }
 
 int main() {
-	int res = count_sums();
-	printf("%d\n", res);
+	size_t res = count_sums();
+	printf("%zu\n", res);
 	return 0;
 }
 ----
@@ -998,34 +1004,34 @@ int main() {
 
 #define MAX_LEN 100
 
-int recount_sums(int len) {
-	int sums_count[MAX_LEN / 2][MAX_LEN * 10] = {0};
-	for (int i = 0; i < 10; ++i) {
+static size_t recount_sums(size_t len) {
+	size_t sums_count[MAX_LEN / 2][MAX_LEN * 10] = {0};
+	for (size_t i = 0; i < 10; ++i) {
 		sums_count[0][i] = 1;
 	}
-	for (int i = 1; i < len / 2; ++i) {
-		for (int j = 0; j < 9 * i + 1; ++j) {
-			for (int k = 0; k < 10; ++k) {
+	for (size_t i = 1; i < len / 2; ++i) {
+		for (size_t j = 0; j < 9 * i + 1; ++j) {
+			for (size_t k = 0; k < 10; ++k) {
 				sums_count[i][j + k] += sums_count[i - 1][j];
 			}
 		}
 	}
-	int res = 0;
-	for (int i = 0; i < 9 * (len / 2) + 1; ++i) {
+	size_t res = 0;
+	for (size_t i = 0; i < 9 * (len / 2) + 1; ++i) {
 		res += sums_count[len / 2 - 1][i] * sums_count[len / 2 - 1][i];
 	}
 	return res;
 }
 
 int main() {
-	int res = recount_sums(6);
-	printf("%d\n", res);
+	size_t res = recount_sums(6);
+	printf("%zu\n", res);
 	return 0;
 }
 ----
 
 Такое решение будет отрабатывать практически мгновенно для билетиков с номером длины `100`
-(но таких билетов ооооочень много и переменная с результатом переполнится, лучше для подсчёта чего-либо использовать беззнаковые переменные, так как их переполнение не приводит к UB).
+(но таких билетов ооооочень много и переменная с результатом переполнится; поэтому для подсчёта чего-либо лучше использовать беззнаковые переменные -- их переполнение не приводит к UB, в коде выше для `res` как раз используется `size_t`).
 Также можно отметить, что для пересчёта сумм здесь выделяется слишком много памяти (сейчас выделяется по массиву на каждую длину, а можно обойтись всего двумя: для подсчитанной на предыдущем шаге и для подсчитываемой на текущем).
 
 == Задача 7
@@ -1064,9 +1070,9 @@ int main() {
 
 #define BUF_SIZE 100
 
-int check_parentheses_seq(char *buf) { // <3>
+static int check_parentheses_seq(const char *buf) { // <3>
 	int opened = 0;
-	for (char *p = buf; *p; ++p) { // <4>
+	for (const char *p = buf; *p; ++p) { // <4>
 		opened += (*p == '(') ? 1 : -1;
 		if (opened < 0) {
 			return 0;
@@ -1108,7 +1114,11 @@ int main() {
 Строкой считается любой массив символов, заканчивающийся символом с кодом `0` (этим будем пользоваться при проходе по строке), такой способ называется https://en.wikipedia.org/wiki/Null-terminated_string[нуль-терминированная строка (null-terminated string, ASCIIZ, C strings)].
 <3> Если мы хотим передать массив в функцию, то нас ждёт огорчение, в C мы можем передать адрес его начала, то есть *указатель* на массив, но не его самого (если быть честным, способ есть, но он очень неудобный, требует некоторого дополнительного кода, и так никто не делает).
 В общем случае нам надо передать адрес начала массива и число элементов в нём (либо второй указатель, обозначающий конец), но в данном случае мы хотим передать строку, а в её конце будет символ с кодом `0`, поэтому передаём только адрес начала.
-Чтобы объявить такой аргумент надо дать ему тип указателя: тип `char *` означает, что значением будет адрес некоторого `char` (в нашем случае первого символа строки).
+Чтобы объявить такой аргумент надо дать ему тип указателя: в нашем коде параметр объявлен как `const char *buf`.
+Типы с указателями и `const` принято читать справа налево:
+* `char *p` -- `p` это указатель на `char` (в нашем случае -- на первый символ строки);
+* `const char *p` -- `p` это указатель на неизменяемый `char`: через такой указатель нельзя менять символы, и компилятор будет это проверять. Именно поэтому параметры функций, не изменяющих переданные строки, мы объявляем как `const char *`;
+* `char * const p` -- `p` это неизменяемый указатель на `char`: сам указатель перенаправить нельзя.
 Тип указателя очень важен, так как позволяет правильно индексироваться по переданному массиву.
 <4> В `p` сохраняется адрес начала. Далее нам будут интересны 2 конструкции.
 
@@ -1124,9 +1134,9 @@ int main() {
 
 [source,c]
 ----
-int check_parentheses_seq(char *buf) {
+static int check_parentheses_seq(const char *buf) {
 	int opened = 0;
-	for (int i = 0; buf[i]; ++i) {
+	for (size_t i = 0; buf[i]; ++i) {
 		opened += (buf[i] == '(') ? 1 : -1;
 		if (opened < 0) {
 			return 0;
@@ -1194,10 +1204,10 @@ int check_parentheses_seq(char *buf) {
 
 #define BUF_SIZE 100
 
-int check_brackets_seq(char *buf) {
+static int check_brackets_seq(const char *buf) {
 	char stack[BUF_SIZE];
 	int top = -1;
-	for (char *p = buf; *p; ++p) {
+	for (const char *p = buf; *p; ++p) {
 		if (*p == '(' || *p == '[' || *p == '{') {
 			stack[++top] = *p;
 		} else {
@@ -1300,11 +1310,11 @@ len(re.findall(f"(?=({re.escape(S1)}))", S))
 
 [source,c]
 ----
-int count_substrings_simple(char *pattern, char *text) {
-	int count = 0;
-	for (char *t = text; *t; ++t) {
+static size_t count_substrings_simple(const char *pattern, const char *text) {
+	size_t count = 0;
+	for (const char *t = text; *t; ++t) {
 		if (*t == *pattern) {
-			int i;
+			size_t i;
 			for (i = 0; t[i] && pattern[i] && t[i] == pattern[i]; ++i) {}
 			if (!pattern[i]) {
 				count++;
@@ -1341,10 +1351,10 @@ int count_substrings_simple(char *pattern, char *text) {
 
 [source,c]
 ----
-void prefix_function(char *str, int *pi) {
+static void prefix_function(const char *str, size_t *pi) {
 	pi[0] = 0;
-	for (int i = 1; str[i]; ++i) {
-		int j = pi[i - 1];
+	for (size_t i = 1; str[i]; ++i) {
+		size_t j = pi[i - 1];
 		while (j > 0 && str[i] != str[j]) {
 			j = pi[j - 1];
 		}
@@ -1373,13 +1383,13 @@ void prefix_function(char *str, int *pi) {
 
 [source,c]
 ----
-int count_substrings_pi(char *pattern, char *text) {
+static size_t count_substrings_pi(const char *pattern, const char *text) {
 	char s[MAX_PATTERN_SIZE + MAX_TEXT_SIZE + 1] = {0};
-	int pi[MAX_PATTERN_SIZE + MAX_TEXT_SIZE + 1] = {0};
+	size_t pi[MAX_PATTERN_SIZE + MAX_TEXT_SIZE + 1] = {0};
 	sprintf(s, "%s#%s", pattern, text); // Надо быть ооочень уверенным, что результат поместится
 	prefix_function(s, pi);
-	int count = 0;
-	for (int i = 0; s[i]; ++i) {
+	size_t count = 0;
+	for (size_t i = 0; s[i]; ++i) {
 		if (s[pi[i]] == '#') {
 			count++;
 		}
@@ -1400,13 +1410,13 @@ int count_substrings_pi(char *pattern, char *text) {
 
 [source,c]
 ----
-int count_substrings_kmp(char *pattern, char *text) {
-	int pattern_pi[MAX_PATTERN_SIZE] = {0};
+static size_t count_substrings_kmp(const char *pattern, const char *text) {
+	size_t pattern_pi[MAX_PATTERN_SIZE] = {0};
 	prefix_function(pattern, pattern_pi);
-	int count = 0;
-	int pi = 0;
-	unsigned long pattern_len = strlen(pattern);
-	for (int i = 0; text[i]; ++i) {
+	size_t count = 0;
+	size_t pi = 0;
+	size_t pattern_len = strlen(pattern);
+	for (size_t i = 0; text[i]; ++i) {
 		while (pi > 0 && text[i] != pattern[pi]) {
 			pi = pattern_pi[pi - 1];
 		}
@@ -1451,20 +1461,20 @@ int count_substrings_kmp(char *pattern, char *text) {
 
 [source,c]
 ----
-int count_substrings_dfa(char *pattern, char *text) {
+static size_t count_substrings_dfa(const char *pattern, const char *text) {
 	// Строим конечный автомат
-	int p_size = strlen(pattern);
-	int delta[MAX_PATTERN_SIZE][ALPHABET_SIZE] = {0};
-	for (int q = 0; q < p_size; ++q) {
-		int q_next = delta[q][pattern[q]];
+	size_t p_size = strlen(pattern);
+	size_t delta[MAX_PATTERN_SIZE][ALPHABET_SIZE] = {0};
+	for (size_t q = 0; q < p_size; ++q) {
+		size_t q_next = delta[q][pattern[q]];
 		delta[q][pattern[q]]=q + 1;
-		memcpy(delta[q + 1], delta[q_next], ALPHABET_SIZE * sizeof(int));
+		memcpy(delta[q + 1], delta[q_next], ALPHABET_SIZE * sizeof(size_t));
 	}
 
 	// Обрабатываем текст, используя построенный автомат
-	int count = 0;
-	int q = 0;
-	for(char *t = text; *t; ++t) {
+	size_t count = 0;
+	size_t q = 0;
+	for(const char *t = text; *t; ++t) {
 		q = delta[q][*t];
 		if (q == p_size) {
 			count++;
@@ -1606,21 +1616,21 @@ int main(int argc, char *argv[]) {
 	int n = atoi(argv[1]);
 	printf("Primes: ");
 	int primes[MAX_PRIMES_COUNT] = {0};
-	int primes_count = 0;
+	size_t primes_count = 0;
 	if (n >= 2) {
 		primes_count = 1;
 		primes[0] = 2;
 	}
 	for (int i = 3; i <= n; i += 2) {
 		primes[primes_count++] = i;
-		for (int j = 0; primes[j] <= (int) sqrt(i); ++j) {
+		for (size_t j = 0; primes[j] <= (int) sqrt(i); ++j) {
 			if (i % primes[j] == 0) {
 				primes_count--;
 				break;
 			}
 		}
 	}
-	for (int i = 0; i < primes_count; ++i) {
+	for (size_t i = 0; i < primes_count; ++i) {
 		printf("%d, ", primes[i]);
 	}
 	printf("\n");
@@ -1646,9 +1656,9 @@ int main(int argc, char *argv[]) {
 
 [source,c]
 ----
-int count_zeros(int *arr, int arr_size) {
-	int zeros = 0;
-	for (int i = 0; i < arr_size; ++i) {
+static size_t count_zeros(const int *arr, size_t arr_size) {
+	size_t zeros = 0;
+	for (size_t i = 0; i < arr_size; ++i) {
 		if (arr[i] == 0) {
 			zeros++;
 		}
@@ -1656,6 +1666,8 @@ int count_zeros(int *arr, int arr_size) {
 	return zeros;
 }
 ----
+
+Обратите внимание на два момента в сигнатуре: `arr` объявлен как `const int *`, потому что функция не изменяет массив, а `arr_size` -- как `size_t`, потому что это размер.
 
 [IMPORTANT]
 ====
