@@ -159,8 +159,21 @@ body {
     font-weight: 600;
 }
 
-.doc h5,
+.doc h3 {
+    font-size: 1.35em;
+}
+
+.doc h4 {
+    font-size: 1.2em;
+}
+
+.doc h5 {
+    font-size: 1.15em;
+    color: #667085;
+}
+
 .doc h6 {
+    font-size: .95em;
     color: #667085;
 }
 
