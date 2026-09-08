@@ -1,3 +1,32 @@
 .navbar-item .icon .github-icon {
     filter: invert(100%);
 }
+
+/* Author line below the page title (rendered by supplemental article.hbs) */
+.doc > .page-author {
+    color: #666;
+    font-size: .88889rem;
+    margin: -.5rem 0 1.5rem;
+}
+
+/* Layout proportions like GitBook / Material for MkDocs / Couchbase docs:
+   fixed left nav | readable-width content | narrow right TOC column,
+   with the content+TOC block centered on wide screens. */
+@media screen and (min-width: 1024px) {
+    main > .content {
+        justify-content: center;
+    }
+
+    /* Proportions @1440: nav 256 | content ~832 | toc 144 */
+    .nav-container {
+        width: 16rem;
+    }
+
+    .doc {
+        max-width: 64rem;
+    }
+
+    aside.toc.sidebar {
+        flex-basis: 9rem;
+    }
+}

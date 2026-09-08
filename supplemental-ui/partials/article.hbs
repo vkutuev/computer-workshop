@@ -1,0 +1,13 @@
+{{!-- Based on: https://gitlab.com/antora/antora-ui-default/-/blob/master/src/partials/article.hbs
+     Added: author line below the page title (the default UI never renders it).
+--}}
+<article class="doc">
+{{#with page.title}}
+<h1 class="page">{{{this}}}</h1>
+{{/with}}
+{{#if page.author}}
+<div class="page-author">Автор: {{page.author}}</div>
+{{/if}}
+{{{page.contents}}}
+{{> pagination}}
+</article>
