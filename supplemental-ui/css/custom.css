@@ -1,23 +1,469 @@
-.navbar-item .icon .github-icon {
-    filter: invert(100%);
+/* ============================================================
+   HwProj-inspired theme for Antora docs site
+   Accent: #3f51b5 | Font: Inter + JetBrains Mono
+   ============================================================ */
+
+/* --- Base typography --- */
+body {
+    font-family: "Inter", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    color: #1f2430;
+    background: #fff;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
-/* Author line below the page title (rendered by supplemental article.hbs) */
+/* --- Navbar (top bar) --- */
+.navbar {
+    background: #3f51b5;
+    color: #fff;
+    box-shadow: 0 1px 3px rgba(16, 24, 40, .12);
+}
+
+.navbar .navbar-item {
+    color: rgba(255, 255, 255, .85);
+}
+
+.navbar .navbar-item:hover,
+.navbar .navbar-item:focus {
+    color: #fff;
+    background: rgba(255, 255, 255, .1);
+}
+
+.navbar .navbar-brand > .navbar-item {
+    color: #fff;
+    font-weight: 600;
+    letter-spacing: -.01em;
+}
+
+.navbar-item .icon .github-icon {
+    filter: invert(100%);
+    opacity: .85;
+}
+
+.navbar-item:hover .icon .github-icon {
+    opacity: 1;
+}
+
+/* Search input in navbar */
+.navbar .search input {
+    background: rgba(255, 255, 255, .15);
+    border: 1px solid rgba(255, 255, 255, .2);
+    color: #fff;
+    border-radius: 6px;
+    transition: background .15s ease, border-color .15s ease;
+}
+
+.navbar .search input::placeholder {
+    color: rgba(255, 255, 255, .6);
+}
+
+.navbar .search input:focus {
+    background: rgba(255, 255, 255, .2);
+    border-color: rgba(255, 255, 255, .4);
+    color: #fff;
+}
+
+/* --- Toolbar (sticky bar below navbar) --- */
+.toolbar {
+    background: #f7f8fb;
+    border-bottom: 1px solid rgba(16, 24, 40, .08);
+    box-shadow: none;
+}
+
+.toolbar a {
+    color: #667085;
+}
+
+.toolbar a:hover {
+    color: #3f51b5;
+}
+
+/* --- Left navigation sidebar --- */
+.nav-container {
+    background: #fff;
+    border-right: 1px solid rgba(16, 24, 40, .08);
+}
+
+.nav-menu {
+    font-size: .9rem;
+}
+
+.nav-menu a {
+    color: #475467;
+    border-radius: 6px;
+    transition: background .12s ease, color .12s ease;
+}
+
+.nav-menu a:hover {
+    color: #3f51b5;
+    background: rgba(63, 81, 181, .06);
+}
+
+.nav-item.is-current-page > a,
+.nav-item.is-current-page > button {
+    color: #3f51b5;
+    font-weight: 500;
+    background: rgba(63, 81, 181, .08);
+}
+
+.nav-menu-toggle {
+    color: #667085;
+}
+
+.nav-menu-toggle:hover {
+    color: #3f51b5;
+}
+
+/* --- Main content area --- */
+.doc {
+    color: #1f2430;
+    line-height: 1.7;
+    letter-spacing: -.003em;
+}
+
+/* Author line below the page title */
 .doc > .page-author {
-    color: #666;
+    color: #667085;
     font-size: .88889rem;
     margin: -.5rem 0 1.5rem;
 }
 
-/* Layout proportions like GitBook / Material for MkDocs / Couchbase docs:
-   fixed left nav | readable-width content | narrow right TOC column,
-   with the content+TOC block centered on wide screens. */
+/* --- Headings --- */
+.doc h1,
+.doc h2,
+.doc h3,
+.doc h4,
+.doc h5,
+.doc h6 {
+    color: #14181f;
+    font-weight: 600;
+    line-height: 1.3;
+    letter-spacing: -.018em;
+}
+
+.doc > h1.page:first-child {
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: -.025em;
+    margin: 1.5rem 0;
+}
+
+.doc h2:not(.discrete) {
+    border-bottom: 1px solid rgba(16, 24, 40, .08);
+    padding-bottom: .3em;
+    font-size: 1.4em;
+}
+
+.doc h3:not(.discrete),
+.doc h4:not(.discrete) {
+    font-weight: 600;
+}
+
+.doc h5,
+.doc h6 {
+    color: #667085;
+}
+
+/* --- Links --- */
+.doc a {
+    color: #3f51b5;
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 2.5px;
+    text-decoration-color: rgba(63, 81, 181, .35);
+    transition: color .15s ease, text-decoration-color .15s ease;
+}
+
+.doc a:hover {
+    color: #2c3a94;
+    text-decoration-color: currentColor;
+}
+
+.doc a.unresolved {
+    color: #d32f2f;
+}
+
+/* --- Paragraphs & lists --- */
+.doc p {
+    margin-bottom: .9em;
+}
+
+.doc ul,
+.doc ol {
+    padding-left: 1.5em;
+}
+
+.doc li + li {
+    margin-top: .3em;
+}
+
+.doc li::marker {
+    color: #667085;
+}
+
+/* --- Inline code --- */
+.doc code {
+    font-family: "JetBrains Mono", "Fira Code", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: .855em;
+    color: #37406b;
+    background: rgba(63, 81, 181, .08);
+    border: 1px solid rgba(63, 81, 181, .1);
+    border-radius: 6px;
+    padding: .15em .4em;
+}
+
+/* --- Code blocks (light theme) --- */
+.listingblock pre:not(.highlight),
+.literalblock pre,
+pre.highlight > code {
+    background: #f6f8fa;
+    box-shadow: none;
+    border: 1px solid rgba(16, 24, 40, .1);
+    border-radius: 8px;
+    padding: 1em 1.1em;
+    font-size: .855rem;
+    line-height: 1.65;
+    color: #24292f;
+}
+
+.listingblock pre.highlight,
+.literalblock pre.highlight {
+    background: #f6f8fa;
+    border-radius: 8px;
+    box-shadow: none;
+}
+
+.listingblock pre.highlight > code,
+.literalblock pre.highlight > code {
+    background: transparent;
+    color: #24292f;
+}
+
+/* Source toolbox (language label + copy button) */
+.source-toolbox {
+    background: #eef1f5;
+    border-radius: 8px;
+    border: 1px solid rgba(16, 24, 40, .1);
+    padding: .35em .9em;
+    margin-bottom: -1px;
+}
+
+.source-lang {
+    color: #667085;
+    font-family: "JetBrains Mono", ui-monospace, monospace;
+    font-size: .75rem;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+}
+
+.copy-button {
+    color: #667085;
+}
+
+.copy-button:hover {
+    color: #3f51b5;
+}
+
+/* --- Syntax highlighting (light theme) --- */
+pre.highlight .hljs-comment,
+pre.highlight .hljs-quote {
+    color: #6e7781;
+    font-style: italic;
+}
+
+pre.highlight .hljs-keyword,
+pre.highlight .hljs-selector-tag,
+pre.highlight .hljs-literal,
+pre.highlight .hljs-doctag {
+    color: #cf222e;
+}
+
+pre.highlight .hljs-string,
+pre.highlight .hljs-regexp,
+pre.highlight .hljs-addition {
+    color: #0a3069;
+}
+
+pre.highlight .hljs-number,
+pre.highlight .hljs-symbol,
+pre.highlight .hljs-bullet,
+pre.highlight .hljs-meta {
+    color: #953800;
+}
+
+pre.highlight .hljs-title,
+pre.highlight .hljs-title.function_,
+pre.highlight .hljs-section {
+    color: #8250df;
+}
+
+pre.highlight .hljs-type,
+pre.highlight .hljs-class .hljs-title,
+pre.highlight .hljs-title.class_,
+pre.highlight .hljs-built_in {
+    color: #116329;
+}
+
+pre.highlight .hljs-attr,
+pre.highlight .hljs-attribute,
+pre.highlight .hljs-param,
+pre.highlight .hljs-property {
+    color: #0550ae;
+}
+
+pre.highlight .hljs-operator,
+pre.highlight .hljs-punctuation,
+pre.highlight .hljs-selector-pseudo,
+pre.highlight .hljs-selector-attr,
+pre.highlight .hljs-selector-class,
+pre.highlight .hljs-selector-id {
+    color: #0550ae;
+}
+
+pre.highlight .hljs-variable,
+pre.highlight .hljs-template-variable,
+pre.highlight .hljs-deletion {
+    color: #cf222e;
+}
+
+pre.highlight .hljs-emphasis {
+    font-style: italic;
+}
+
+pre.highlight .hljs-strong {
+    font-weight: 700;
+}
+
+/* --- Blockquotes --- */
+.quoteblock {
+    background: rgba(63, 81, 181, .04);
+    border-left: 3px solid rgba(63, 81, 181, .45);
+    border-radius: 0 8px 8px 0;
+    color: #475467;
+    padding: .75em 1.25em;
+}
+
+.quoteblock .attribution {
+    color: #667085;
+    font-size: .83333rem;
+}
+
+/* --- Tables --- */
+table.tableblock {
+    font-size: .875rem;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 0 0 1px rgba(16, 24, 40, .08);
+}
+
+table.tableblock th {
+    font-weight: 600;
+    background: #f7f8fb;
+    color: #14181f;
+    padding: .6em 1em;
+}
+
+table.tableblock td {
+    padding: .55em 1em;
+    border-top: 1px solid rgba(16, 24, 40, .06);
+}
+
+table.tableblock tr:nth-child(even) td {
+    background: rgba(16, 24, 40, .02);
+}
+
+/* --- Admonition blocks (note, tip, warning, etc.) --- */
+.admonitionblock {
+    border-radius: 8px;
+    box-shadow: 0 0 0 1px rgba(16, 24, 40, .06);
+}
+
+.admonitionblock.note {
+    box-shadow: 0 0 0 1px rgba(33, 126, 231, .15);
+}
+
+.admonitionblock.tip {
+    box-shadow: 0 0 0 1px rgba(65, 175, 70, .15);
+}
+
+.admonitionblock.warning {
+    box-shadow: 0 0 0 1px rgba(225, 129, 20, .15);
+}
+
+.admonitionblock.important {
+    box-shadow: 0 0 0 1px rgba(211, 47, 47, .15);
+}
+
+.admonitionblock.caution {
+    box-shadow: 0 0 0 1px rgba(160, 67, 156, .15);
+}
+
+/* --- Sidebar blocks --- */
+.sidebarblock {
+    background: #f7f8fb;
+    border-radius: 12px;
+    box-shadow: 0 0 0 1px rgba(16, 24, 40, .06);
+}
+
+/* --- Images --- */
+.imageblock img {
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(16, 24, 40, .08);
+}
+
+/* --- Right TOC sidebar --- */
+aside.toc.sidebar .toc-menu {
+    color: #667085;
+    font-size: .85rem;
+}
+
+aside.toc.sidebar .toc-menu a {
+    color: #667085;
+    text-decoration: none;
+    border-radius: 4px;
+    transition: color .12s ease, background .12s ease;
+}
+
+aside.toc.sidebar .toc-menu a:hover {
+    color: #3f51b5;
+    background: rgba(63, 81, 181, .06);
+}
+
+/* --- Footer --- */
+footer.footer {
+    background: #f7f8fb;
+    color: #98a2b3;
+    border-top: 1px solid rgba(16, 24, 40, .06);
+    font-size: .8rem;
+}
+
+/* --- Pagination (prev/next) --- */
+nav.pagination {
+    border-top: 1px solid rgba(16, 24, 40, .06);
+}
+
+nav.pagination a {
+    color: #3f51b5;
+}
+
+nav.pagination a:hover {
+    color: #2c3a94;
+}
+
+/* --- Horizontal rule --- */
+.doc hr {
+    height: 1px;
+    background: rgba(16, 24, 40, .08);
+    border: none;
+    margin: 1.8em 0;
+}
+
+/* --- Layout proportions (wide screens) --- */
 @media screen and (min-width: 1024px) {
     main > .content {
         justify-content: center;
     }
 
-    /* Proportions @1440: nav 256 | content ~832 | toc 144 */
     .nav-container {
         width: 16rem;
     }
@@ -29,4 +475,39 @@
     aside.toc.sidebar {
         flex-basis: 9rem;
     }
+}
+
+/* --- Mobile nav panel adjustments --- */
+.nav-panel-menu {
+    background: #fff;
+}
+
+.nav-panel-explore {
+    background: #f7f8fb;
+}
+
+/* --- Scrollbar styling for code blocks --- */
+pre.highlight::-webkit-scrollbar,
+.listingblock pre::-webkit-scrollbar,
+.literalblock pre::-webkit-scrollbar {
+    height: 8px;
+}
+
+pre.highlight::-webkit-scrollbar-track,
+.listingblock pre::-webkit-scrollbar-track,
+.literalblock pre::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+pre.highlight::-webkit-scrollbar-thumb,
+.listingblock pre::-webkit-scrollbar-thumb,
+.literalblock pre::-webkit-scrollbar-thumb {
+    background: rgba(16, 24, 40, .15);
+    border-radius: 999px;
+}
+
+pre.highlight::-webkit-scrollbar-thumb:hover,
+.listingblock pre::-webkit-scrollbar-thumb:hover,
+.literalblock pre::-webkit-scrollbar-thumb:hover {
+    background: rgba(16, 24, 40, .25);
 }
