@@ -524,3 +524,18 @@ pre.highlight::-webkit-scrollbar-thumb:hover,
 .literalblock pre::-webkit-scrollbar-thumb:hover {
     background: rgba(16, 24, 40, .25);
 }
+
+/* --- KaTeX math (rendered client-side as real math fonts) --- */
+.doc .katex {
+    color: #1f2430;
+}
+
+.stemblock .content {
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: .25rem 0;
+}
+
+.stemblock .katex-display {
+    margin: .5rem 0;
+}
