@@ -486,7 +486,7 @@ nav.pagination a:hover {
     }
 
     aside.toc.sidebar {
-        flex-basis: 9rem;
+        flex-basis: 20rem;
     }
 }
 
