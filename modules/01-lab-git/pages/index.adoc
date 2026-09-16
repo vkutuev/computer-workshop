@@ -597,6 +597,22 @@ upstream, see 'push.autoSetupRemote' in 'git help config'.
 git push --set-upstream origin page
 ----
 
+Однако, у вас могла возникнуть ошибка аутентификации, так как GitHub c 2021 года перестал поддерживать авторизацию по паролю для `git push` и других операций через терминал
+
+[source, shell]
+----
+Username for 'https://github.com': vkutuev
+Password for 'https://vkutuev@github.com': 
+remote: Invalid username or token. Password authentication is not supported for Git operations.
+fatal: Authentication failed for 'https://github.com/vkutuev/...'
+----
+
+Один из наиболее удобных вариантов авторизации теперь происходит через Personal Access Token (PAT).
+
+. Перейдите на сайт GitHub в настройки профиля: Settings -> Developer settings -> Personal access tokens -> Tokens (classic).
+. Нажмите Generate new token (classic), выберите права доступа (repo) и скопируйте созданный токен.
+. В терминале при выполнении команды `git push` в качестве Username введите ваш логин на GitHub, а в качестве Password вставьте скопированный токен.
+
 Теперь в выводе `git log` видим, что есть удалённая ветка `origin/page`, которая содержит то же, что и ветка `page`
 
 [listing]
