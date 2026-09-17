@@ -619,10 +619,11 @@ fatal: Authentication failed for 'https://github.com/vkutuev/...'
 
 === Способ 2. GitHub CLI
 
-NOTE: Утилита GitHub CLI автоматически настраивает кэширование персонального токена доступа (PAT) в Git Credential Manager, поэтому вам не придётся вводить данные вручную при каждой операции.
+NOTE: Утилита GitHub CLI автоматически сохраняет ваши данные для входа в Git, поэтому вводить пароль или токен вручную при каждой операции, требующей обращения к удалённому репозиторию, не потребуется
 
 **Установите https://cli.github.com/[GitHub CLI]**
-**Выполните команду в терминале:**
+
+*Выполните в терминале*
 
 [source, shell]
 ----
@@ -647,30 +648,32 @@ gh auth login
 ssh-keygen -t ed25519 -C "vladimir.kutuev@gmail.com"
 ----
 
-TIP: Нажмите `Enter`, чтобы использовать путь по умолчанию (`~/.ssh/id_ed25519`). При необходимости задайте кодовую фразу (_passphrase_)
+Нажмите `Enter`, чтобы использовать путь по умолчанию (`~/.ssh/id_ed25519`). При необходимости задайте кодовую фразу (_passphrase_) для дополнительной защиты ключа (это совсем необязательно, можно оставить пустой, нажав `Enter`)
 
-**Запустите ssh-agent и добавьте ключ:**
-
-[source, shell]
+* *Запустите ssh-agent и добавьте ключ (опционально)*
++
+NOTE: Этот шаг нужен только в том случае, если вы задали кодовую фразу, link:https://wiki.archlinux.org/title/SSH_keys#SSH_agents[ssh-agent^] сохраняет ключ в памяти сессии, чтобы вам не приходилось вводить фразу вручную при каждом обращении к GitHub
++
+[source,shell]
 ----
 eval "$(ssh-agent -s)"
 ssh-add ~/.ssh/id_ed25519
 ----
 
-**Скопируйте публичный ключ:**
+*Скопируйте публичный ключ*
 
-[source, shell]
+[source,shell]
 ----
 cat ~/.ssh/id_ed25519.pub
 ----
 
-**Добавьте ключ в аккаунт GitHub:**
+**Добавьте ключ в аккаунт GitHub**
 
 . Перейдите в *Settings* -> *SSH and GPG keys*
 . Нажмите *New SSH key*
-. Укажите имя в *Title*, оставьте `Authentication Key`, вставьте публичный ключ в *Key* и нажмите *Add SSH key*
+. Укажите имя в *Title*, оставьте `Authentication Key`, вставьте публичный ключ в *Key* и нажмите *Add SSH key* 
 
-**Проверьте подключение:**
+**Проверьте подключение**
 
 [source, shell]
 ----
@@ -681,7 +684,7 @@ ssh -T git@github.com
 
 [source, text]
 ----
-Hi username! You've successfully authenticated, but GitHub does not provide shell access.
+Hi vkutuev! You've successfully authenticated, but GitHub does not provide shell access.
 ----
 
 Теперь в выводе `git log` видим, что есть удалённая ветка `origin/page`, которая содержит то же, что и ветка `page`
