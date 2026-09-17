@@ -621,7 +621,7 @@ fatal: Authentication failed for 'https://github.com/vkutuev/...'
 
 NOTE: Утилита GitHub CLI автоматически сохраняет ваши данные для входа в Git, поэтому вводить пароль или токен вручную при каждой операции, требующей обращения к удалённому репозиторию, не потребуется
 
-Установите https://cli.github.com/[GitHub CLI]
+Установите https://cli.github.com/[GitHub CLI^]
 
 Выполните
 
@@ -654,7 +654,7 @@ ssh-keygen -t ed25519 -C "vladimir.kutuev@gmail.com"
 +
 NOTE: Этот шаг может понадобиться только в том случае, если вы всё-таки решили задать кодовую фразу, link:https://wiki.archlinux.org/title/SSH_keys#SSH_agents[ssh-agent^] сохраняет ключ в памяти сессии, чтобы вам не приходилось вводить фразу вручную при каждом обращении к GitHub
 +
-[source,shell]
+[source, shell]
 ----
 eval "$(ssh-agent -s)"
 ssh-add ~/.ssh/id_ed25519
@@ -662,7 +662,7 @@ ssh-add ~/.ssh/id_ed25519
 
 Скопируйте публичный ключ
 
-[source,shell]
+[source, shell]
 ----
 cat ~/.ssh/id_ed25519.pub
 ----
@@ -671,7 +671,7 @@ cat ~/.ssh/id_ed25519.pub
 
 . Перейдите в *Settings* -> *SSH and GPG keys*
 . Нажмите *New SSH key*
-. Укажите имя в *Title*, оставьте `Authentication Key`, вставьте публичный ключ в *Key* и нажмите *Add SSH key* 
+. Укажите имя в *Title*, оставьте `Authentication Key`, вставьте публичный ключ в *Key* и нажмите *Add SSH key*
 
 Проверьте подключение
 
