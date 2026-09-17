@@ -597,9 +597,9 @@ upstream, see 'push.autoSetupRemote' in 'git help config'.
 git push --set-upstream origin page
 ----
 
-Однако, у вас могла возникнуть ошибка аутентификации, так как GitHub с 2021 года перестал поддерживать авторизацию по паролю для `git push` и других операций через терминал
+Однако, у вас могла возникнуть ошибка аутентификации, так как GitHub c 2021 года перестал поддерживать авторизацию по паролю для `git push` и других операций через терминал
 
-[source,shell]
+[source, shell]
 ----
 Username for 'https://github.com': vkutuev
 Password for 'https://vkutuev@github.com': 
@@ -624,7 +624,7 @@ NOTE: Утилита GitHub CLI автоматически настраивае�
 **Установите https://cli.github.com/[GitHub CLI]**
 **Выполните команду в терминале:**
 
-[source,bash]
+[source, shell]
 ----
 gh auth login
 ----
@@ -642,7 +642,7 @@ gh auth login
 
 **Сгенерируйте пару SSH-ключей:**
 
-[source,bash]
+[source, shell]
 ----
 ssh-keygen -t ed25519 -C "vladimir.kutuev@gmail.com"
 ----
@@ -651,7 +651,7 @@ TIP: Нажмите `Enter`, чтобы использовать путь по �
 
 **Запустите ssh-agent и добавьте ключ:**
 
-[source,bash]
+[source, shell]
 ----
 eval "$(ssh-agent -s)"
 ssh-add ~/.ssh/id_ed25519
@@ -659,7 +659,7 @@ ssh-add ~/.ssh/id_ed25519
 
 **Скопируйте публичный ключ:**
 
-[source,bash]
+[source, shell]
 ----
 cat ~/.ssh/id_ed25519.pub
 ----
@@ -672,14 +672,14 @@ cat ~/.ssh/id_ed25519.pub
 
 **Проверьте подключение:**
 
-[source,bash]
+[source, shell]
 ----
 ssh -T git@github.com
 ----
 
 При успешном подключении терминал вернёт ответ
 
-[source,text]
+[source, text]
 ----
 Hi username! You've successfully authenticated, but GitHub does not provide shell access.
 ----
