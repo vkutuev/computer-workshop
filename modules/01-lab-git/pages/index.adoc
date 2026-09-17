@@ -652,7 +652,7 @@ ssh-keygen -t ed25519 -C "vladimir.kutuev@gmail.com"
 
 * *Запустите ssh-agent и добавьте ключ (опционально)*
 +
-NOTE: Этот шаг нужен только в том случае, если вы задали кодовую фразу, link:https://wiki.archlinux.org/title/SSH_keys#SSH_agents[ssh-agent^] сохраняет ключ в памяти сессии, чтобы вам не приходилось вводить фразу вручную при каждом обращении к GitHub
+NOTE: Этот шаг может понадобиться только в том случае, если вы всё-таки решили задать кодовую фразу, link:https://wiki.archlinux.org/title/SSH_keys#SSH_agents[ssh-agent^] сохраняет ключ в памяти сессии, чтобы вам не приходилось вводить фразу вручную при каждом обращении к GitHub
 +
 [source,shell]
 ----
