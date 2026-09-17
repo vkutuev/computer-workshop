@@ -621,16 +621,16 @@ fatal: Authentication failed for 'https://github.com/vkutuev/...'
 
 NOTE: Утилита GitHub CLI автоматически сохраняет ваши данные для входа в Git, поэтому вводить пароль или токен вручную при каждой операции, требующей обращения к удалённому репозиторию, не потребуется
 
-**Установите https://cli.github.com/[GitHub CLI]**
+Установите https://cli.github.com/[GitHub CLI]
 
-*Выполните в терминале*
+Выполните
 
 [source, shell]
 ----
 gh auth login
 ----
 
-**Ответьте на шаги интерактивного мастера:**
+Ответьте на шаги интерактивного мастера:
 
 . *What account do you want to log in to?* pass:[->] `GitHub.com`
 . *What is your preferred protocol for Git operations?* pass:[->] `HTTPS`
@@ -641,7 +641,7 @@ gh auth login
 
 Аутентификация по SSH позволяет безопасно взаимодействовать с репозиториями без ввода логина и токена при каждой операции
 
-**Сгенерируйте пару SSH-ключей:**
+Сгенерируйте пару SSH-ключей:
 
 [source, shell]
 ----
@@ -660,20 +660,20 @@ eval "$(ssh-agent -s)"
 ssh-add ~/.ssh/id_ed25519
 ----
 
-*Скопируйте публичный ключ*
+Скопируйте публичный ключ
 
 [source,shell]
 ----
 cat ~/.ssh/id_ed25519.pub
 ----
 
-**Добавьте ключ в аккаунт GitHub**
+Добавьте ключ в аккаунт GitHub
 
 . Перейдите в *Settings* -> *SSH and GPG keys*
 . Нажмите *New SSH key*
 . Укажите имя в *Title*, оставьте `Authentication Key`, вставьте публичный ключ в *Key* и нажмите *Add SSH key* 
 
-**Проверьте подключение**
+Проверьте подключение
 
 [source, shell]
 ----
