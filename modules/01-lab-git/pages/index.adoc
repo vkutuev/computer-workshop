@@ -597,6 +597,96 @@ upstream, see 'push.autoSetupRemote' in 'git help config'.
 git push --set-upstream origin page
 ----
 
+Однако, у вас могла возникнуть ошибка аутентификации, так как GitHub c 2021 года перестал поддерживать авторизацию по паролю для `git push` и других операций через терминал
+
+[source, shell]
+----
+Username for 'https://github.com': vkutuev
+Password for 'https://vkutuev@github.com': 
+remote: Invalid username or token. Password authentication is not supported for Git operations.
+fatal: Authentication failed for 'https://github.com/vkutuev/...'
+----
+
+Для успешной работы с удалённым репозиторием выберите один из трёх способов аутентификации
+
+=== Способ 1. Ручной ввод токена (Personal Access Token)
+
+. Перейдите на GitHub в настройки профиля: *Settings* -> *Developer settings* -> *Personal access tokens* -> *Tokens (classic)*
+. Нажмите *Generate new token (classic)*, задайте имя токена, выберите права доступа (`repo`) и скопируйте токен
+. В терминале при выполнении `git push` укажите:
+* *Username*: ваш логин на GitHub
+* *Password*: скопированный токен
+
+=== Способ 2. GitHub CLI
+
+NOTE: Утилита GitHub CLI автоматически сохраняет ваши данные для входа в Git, поэтому вводить пароль или токен вручную при каждой операции, требующей обращения к удалённому репозиторию, не потребуется
+
+Установите https://cli.github.com/[GitHub CLI^]
+
+Выполните
+
+[source, shell]
+----
+gh auth login
+----
+
+Ответьте на шаги интерактивного мастера:
+
+. *What account do you want to log in to?* pass:[->] `GitHub.com`
+. *What is your preferred protocol for Git operations?* pass:[->] `HTTPS`
+. *Authenticate Git with your GitHub credentials?* pass:[->] `Yes`
+. *How would you like to authenticate?* pass:[->] `Login with a web browser`
+
+=== Способ 3. SSH
+
+Аутентификация по SSH позволяет безопасно взаимодействовать с репозиториями без ввода логина и токена при каждой операции
+
+Сгенерируйте пару SSH-ключей:
+
+[source, shell]
+----
+ssh-keygen -t ed25519 -C "vladimir.kutuev@gmail.com"
+----
+
+Нажмите `Enter`, чтобы использовать путь по умолчанию (`~/.ssh/id_ed25519`). При необходимости задайте кодовую фразу (_passphrase_) для дополнительной защиты ключа (это совсем необязательно, можно оставить пустой, нажав `Enter`)
+
+* *Запустите ssh-agent и добавьте ключ (опционально)*
++
+NOTE: Этот шаг может понадобиться только в том случае, если вы всё-таки решили задать кодовую фразу, link:https://wiki.archlinux.org/title/SSH_keys#SSH_agents[ssh-agent^] сохраняет ключ в памяти сессии, чтобы вам не приходилось вводить фразу вручную при каждом обращении к GitHub
++
+[source, shell]
+----
+eval "$(ssh-agent -s)"
+ssh-add ~/.ssh/id_ed25519
+----
+
+**Теперь скопируйте публичный ключ**
+
+[source, shell]
+----
+cat ~/.ssh/id_ed25519.pub
+----
+
+Добавьте ключ в аккаунт GitHub
+
+. Перейдите в *Settings* -> *SSH and GPG keys*
+. Нажмите *New SSH key*
+. Укажите имя в *Title*, оставьте `Authentication Key`, вставьте публичный ключ в *Key* и нажмите *Add SSH key*
+
+Проверьте подключение
+
+[source, shell]
+----
+ssh -T git@github.com
+----
+
+При успешном подключении терминал вернёт ответ
+
+[source, text]
+----
+Hi vkutuev! You've successfully authenticated, but GitHub does not provide shell access.
+----
+
 Теперь в выводе `git log` видим, что есть удалённая ветка `origin/page`, которая содержит то же, что и ветка `page`
 
 [listing]
